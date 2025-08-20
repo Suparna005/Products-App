@@ -7,9 +7,12 @@ import Button from '@mui/material/Button';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardActions from '@mui/material/CardActions'
 import axios from 'axios'
+import axiosInstance from '../axiosinterceptor'
+import { Navigate,useNavigate } from 'react-router-dom';
 
 const Home = () => {
     const [products, setProducts] = useState([])
+    let token = localStorage.getItem('token')
 
     useEffect(() => {
         axios.get("http://localhost:5000/products")
@@ -21,6 +24,23 @@ const Home = () => {
                 console.log("fetching data failed:", error)
             })
     }, [])
+
+     let navigate=useNavigate()
+    let updatepro=(pro)=>{
+      navigate('/add',{state:{pro}})
+    }
+
+
+    let deletepro=(id)=>{
+      axiosInstance.delete("http://localhost:5000/products/delete/"+id)
+.then((res)=>{
+  window.location.reload()
+  alert("deleted successfully")
+
+}) 
+.catch(err)
+console.log(err)
+   }
 
 
     // const products = [{
@@ -42,14 +62,14 @@ const Home = () => {
     //     ImageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkv3P0U9yLbg_oZ4EXeydpR9X6-JYCs3bWtw&s"
     // }]
     return (
-        <div style={{ display: "flex", gap: "1rem", flexwrap: "wrap", marginTop: "15px" }}>
+        <div style={{display: 'flex',flexDirection:"row", flexWrap:"wrap",gap: "1rem", marginTop: "15px",justifyContent:"center" }}>
             {products.map((pro, index) => (
 
-                <Card key={index} sx={{ maxWidth: 400 }}>
+                <Card key={index} sx={{ maxWidth: 400,width:"100%"}}>
                     <CardActionArea>
                         <CardMedia
                             component="img"
-                            height="200"
+                            height="250"
                             image={pro.imageUrl}
 
                         />
@@ -60,15 +80,19 @@ const Home = () => {
                             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                                 {pro.description}
                             </Typography>
-                            <Typography variant="body2" sx={{ color: 'blue', fontSize: '15px', marginTop: "10px" }}>
+                            <Typography variant="body2" sx={{  fontSize: '15px', marginTop: "10px" ,color: pro.status==="Available"?'blue':'red'}}>
                                 {pro.status}
                             </Typography>
                         </CardContent>
                     </CardActionArea>
                     <CardActions>
                         <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "5px", cursor: "pointer", borderRadius: "5px" }}>
-                            <Button variant="contained" style={{ backgroundColor: "seagreen" }}>ADD CART</Button>
-                            <Button variant="contained" style={{ backgroundColor: "palevioletred " }}>BUY NOW</Button>
+                             {token && (
+              <>
+                            <Button variant="contained"onClick={()=>updatepro(pro)} style={{ backgroundColor: "seagreen" }}>EDIT</Button>
+                            <Button variant="contained" onClick={()=>deletepro(pro._id)} style={{ backgroundColor: "palevioletred " }}>DELETE</Button>
+                            </>
+                             )}
                         </div>
                     </CardActions>
                 </Card>

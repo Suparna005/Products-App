@@ -5,10 +5,16 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
-import { Link } from 'react-router-dom';
+import { Link,Navigate, useNavigate } from 'react-router-dom';
 
 
 const Navbar = () => {
+  const navigate = useNavigate()
+  let token = localStorage.getItem('token')
+  let removeUser = () => {
+    localStorage.removeItem('token')
+    navigate('/')
+  }
   return (
     <div>
       <Box sx={{ flexGrow: 1 }}>
@@ -24,11 +30,24 @@ const Navbar = () => {
 
             </IconButton>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              PRODUCTS CORNER
+              BEAUTY STORE🩰
             </Typography>
             <Link to='/'><Button color="inherit" style={{ color: "white" }}>HOME</Button></Link>
+            {!token &&(
+              <>
             <Link to='/login'><Button color="inherit" style={{ color: "white" }}>LOGIN</Button></Link>
+            </>
+            )}
+            {token &&(
+              <>
             <Link to='/add' ><Button color="inherit" style={{ color: "white" }}>ADD PRODUCTS</Button></Link>
+            </>
+            )}
+            {token && (
+              <>
+            <Button color="inherit" onClick={removeUser} style={{ color: "white" }}>LOGOUT</Button>
+            </>
+            )}
 
           </Toolbar>
         </AppBar>

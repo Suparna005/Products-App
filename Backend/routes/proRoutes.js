@@ -1,6 +1,22 @@
 const express = require('express')
+const jwt=require('jsonwebtoken')
 const router = express.Router('../routes/proRoutes')
 const promodels = require('../Models/promodels')
+
+
+function verifyToken(req,res,next){
+let token=req.headers.token
+try{
+    if(!token)throw 'Unauthorized Access'
+    let payload=jwt.verify(token,"secret")
+    if(!payload) throw 'Unauthorized Access'
+    next()
+
+}catch(err){
+    res.json({message:err})
+
+}
+}
 
 router.get('/', async (req, res) => {
     try {
@@ -12,7 +28,7 @@ router.get('/', async (req, res) => {
         res.status(400).send("failed to fetch products....")
     }
 })
-router.post('/add', async (req, res) => {
+router.post('/add',verifyToken, async (req, res) => {
     try {
         const newPro = new promodels(req.body)
         await newPro.save()
@@ -23,9 +39,9 @@ router.post('/add', async (req, res) => {
         res.status(400).json("failed to add product....")
     }
 })
-router.put('/update/:id', async (req, res) => {
+router.put('/update/:id',verifyToken, async (req, res) => {
     try {
-        await promodels.findByIdAndUpdate(req.params.id)
+        await promodels.findByIdAndUpdate(req.params.id,req.body)
         res.status(200).send({ message: "Product updated...." })
     }
     catch (error) {
@@ -34,7 +50,7 @@ router.put('/update/:id', async (req, res) => {
     }
 })
 
-router.delete('/delete/:id', async (req, res) => {
+router.delete('/delete/:id',verifyToken, async (req, res) => {
     try {
         await promodels.findByIdAndDelete(req.params.id)
         res.status(200).send({ message: "Product deleted...." })
